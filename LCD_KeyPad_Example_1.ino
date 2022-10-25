@@ -6,39 +6,50 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 uint16_t analog_deger_A0 = 0, onceki_buton_deger = 0, buton_deger = 0;
 uint16_t ayarlara_giris_sayac = 0, ayarlardan_cikis_sayac = 0;
 long onceki_zaman = 0, ayarlar_onceki_zaman = 0, arttirma_onceki_zaman = 0, azaltma_onceki_zaman = 0, besli_arttirma_onceki_zaman = 0;
-bool ayarlar_sayfasi_aktif = false, yan_sayfaya_gecildi = false;
+bool ayarlar_sayfasi_aktif = false, yan_sayfaya_gecildi = false, loop_aktif = false;
 uint8_t set_degeri = 0;
-float debi_miktrari = 3.7;
+float debi_miktari = 3.7;
 uint16_t motor_rpm = 456;
 
 void setup() {
   lcd.begin(16, 2);
+  for (int i = 0; i < 4; i++) {
+    lcd.clear();
+    delay(500);
+    lcd.setCursor(0, 0);
+    lcd.print("> LCD & KEYPAD <");
+    lcd.setCursor(0, 1);
+    lcd.print(" USER INTERFACE ");
+    delay(500);
+  }
 }
 
 void loop() {
-  if (ayarlar_sayfasi_aktif == false) {
-    if (millis() - onceki_zaman >= 155) {
-      lcd.clear();
-      onceki_zaman = millis();
+  if (analogRead(A0) <= 1000 || loop_aktif == true) {
+    loop_aktif = true;
+    if (ayarlar_sayfasi_aktif == false) {
+      if (millis() - onceki_zaman >= 155) {
+        lcd.clear();
+        onceki_zaman = millis();
+      }
+      lcd.setCursor(0, 0);
+      lcd.print("SET   ");
+      lcd.print("RPM   ");
+      lcd.print("DEBI");
+
+      lcd.setCursor(0, 1);
+      lcd.print("%");
+      lcd.print(set_degeri);
+      lcd.setCursor(6, 1);
+      lcd.print(motor_rpm);
+      lcd.setCursor(12, 1);
+      lcd.print(debi_miktari);
     }
-    lcd.setCursor(0, 0);
-    lcd.print("SET   ");
-    lcd.print("RPM   ");
-    lcd.print("DEBI");
-
-    lcd.setCursor(0, 1);
-    lcd.print("%");
-    lcd.print(set_degeri);
-    lcd.setCursor(6, 1);
-    lcd.print(motor_rpm);
-    lcd.setCursor(12, 1);
-    lcd.print(debi_miktrari);
+    buton_deger = buton_secme();
+    ayarlara_giris();
+    ayarlar();
   }
-  buton_deger = buton_secme();
-  ayarlara_giris();
-  ayarlar();
 }
-
 
 uint16_t buton_secme() {
   analog_deger_A0 = analogRead(A0);
